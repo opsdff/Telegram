@@ -127,7 +127,7 @@ public class AuctionWearingSheet extends BottomSheetWithRecyclerListView impleme
 
         final int topHeightDp = isInfo ? 220: 208;
         auction = GiftAuctionController.getInstance(currentAccount).subscribeToGiftAuction(giftId, this);
-        topView = new StarGiftSheet.TopView(context, resourcesProvider, this::onBackPressed, v -> {}, null, v -> {}, v -> {}, v -> {}, v -> {}, v -> {}) {
+        topView = new StarGiftSheet.TopView(context, resourcesProvider, this::onBackPressed, v -> {}, null, null, v -> {}, v -> {}, v -> {}, v -> {}, v -> {}) {
             @Override
             public float getRealHeight() {
                 return dp(topHeightDp);

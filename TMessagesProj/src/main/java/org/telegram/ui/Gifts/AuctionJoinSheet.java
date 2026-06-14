@@ -322,7 +322,7 @@ public class AuctionJoinSheet extends BottomSheetWithRecyclerListView implements
         }
 
         if (auction != null && auction.previewAttributes != null) {
-            StarGiftSheet.TopView topView = new StarGiftSheet.TopView(context, resourcesProvider, this::onBackPressed, v -> {}, null, v -> {}, v -> {}, v -> {}, v -> {}, v -> {}) {
+            StarGiftSheet.TopView topView = new StarGiftSheet.TopView(context, resourcesProvider, this::onBackPressed, v -> {}, null, null, v -> {}, v -> {}, v -> {}, v -> {}, v -> {}) {
                 @Override
                 public float getRealHeight() {
                     return dp(288);
