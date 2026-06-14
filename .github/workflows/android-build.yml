@@ -30,6 +30,15 @@ jobs:
       with:
         cache-read-only: ${{ github.ref != 'refs/heads/master' }}
 
+    # 3.1. Кешируем Android NDK/CMake, чтобы не скачивать их при каждом запуске
+    - name: Cache Android NDK and CMake
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ env.ANDROID_HOME }}/ndk
+          ${{ env.ANDROID_HOME }}/cmake
+        key: ${{ runner.os }}-android-ndk-${{ hashFiles('TMessagesProj/build.gradle') }}
+
     # 4. Даем права на выполнение скрипту Gradle (необходимо для Linux окружения)
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
