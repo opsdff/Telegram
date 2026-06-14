@@ -39,6 +39,18 @@ jobs:
           ${{ env.ANDROID_HOME }}/cmake
         key: ${{ runner.os }}-android-ndk-${{ hashFiles('TMessagesProj/build.gradle') }}
 
+    # 3.2. Кешируем промежуточные сборочные файлы модулей (инкрементальная сборка)
+    - name: Cache module build directories
+      uses: actions/cache@v4
+      with:
+        path: |
+          **/build
+          !**/build/outputs
+          !**/build/intermediates/packaged_res
+        key: ${{ runner.os }}-gradle-modules-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-modules-
+
     # 4. Даем права на выполнение скрипту Gradle (необходимо для Linux окружения)
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
