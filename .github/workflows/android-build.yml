@@ -51,6 +51,17 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-modules-
 
+    # 3.3. Кешируем промежуточные файлы CMake/ninja (инкрементальная сборка нативного кода)
+    - name: Cache CMake/ninja build state
+      uses: actions/cache@v4
+      with:
+        path: |
+          **/.cxx
+        key: ${{ runner.os }}-cxx-${{ hashFiles('TMessagesProj/build.gradle', 'TMessagesProj/jni/CMakeLists.txt') }}-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-cxx-${{ hashFiles('TMessagesProj/build.gradle', 'TMessagesProj/jni/CMakeLists.txt') }}-
+          ${{ runner.os }}-cxx-
+
     # 4. Даем права на выполнение скрипту Gradle (необходимо для Linux окружения)
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
