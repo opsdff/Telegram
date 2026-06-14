@@ -23,15 +23,20 @@ jobs:
       with:
         java-version: '17'
         distribution: 'zulu'
-        cache: gradle
 
-    # 3. Даем права на выполнение скрипту Gradle (необходимо для Linux окружения)
+    # 3. Настраиваем кеш сборки Gradle (зависимости, wrapper и build cache)
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+      with:
+        cache-read-only: ${{ github.ref != 'refs/heads/master' }}
+
+    # 4. Даем права на выполнение скрипту Gradle (необходимо для Linux окружения)
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
-    # 4. Запускаем сборку дебаг-версии APK
+    # 5. Запускаем сборку дебаг-версии APK
     - name: Build with Gradle
-      run: ./gradlew assembleDebug
+      run: ./gradlew assembleDebug --build-cache
 
     # 5. Сохраняем готовый APK как артефакт сборки GitHub
     - name: Upload APK

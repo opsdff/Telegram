@@ -9521,7 +9521,7 @@
     <string name="Gift2StakingRewardPerHour">≈ %s / hour</string>
     <string name="Gift2StakingPool">Collection pool</string>
     <string name="Gift2StakingActiveStakers">Active stakers</string>
-    <string name="Gift2StakingInfo">Staking your gift locks it for 2 days and adds it to this collection's pool. While staked, it earns a share of the pool every hour and can\'t be transferred or sold.</string>
+    <string name="Gift2StakingInfo">Staking your gift locks it for 2 days and adds it to this collection\'s pool. While staked, it earns a share of the pool every hour and can\'t be transferred or sold.</string>
     <string name="Gift2StakeGift">Stake Gift</string>
     <string name="Gift2StakingStakeButton">Stake</string>
     <string name="Gift2ChangePrice">Change Price</string>
