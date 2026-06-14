@@ -558,7 +558,7 @@ public class StarGiftSheet extends BottomSheetWithRecyclerListView implements No
         wearLayout.setAlpha(0.0f);
         craftLayout.setAlpha(0.0f);
 
-        topView = new TopView(context, resourcesProvider, this::onBackPressed, this::onMenuPressed, v -> openCrafting(true), this::onTransferClick, this::onWearPressed, this::onSharePressed, this::onResellPressed, this::onUpdatePriceClick);
+        topView = new TopView(context, resourcesProvider, this::onBackPressed, this::onMenuPressed, v -> openCrafting(true), v -> openStakingInfo(), this::onTransferClick, this::onWearPressed, this::onSharePressed, this::onResellPressed, this::onUpdatePriceClick);
         topView.craftTopView.helpButton.setOnClickListener(v -> {
             if (v.getAlpha() < 1) return;
             openCraftInfo();
@@ -1437,6 +1437,11 @@ public class StarGiftSheet extends BottomSheetWithRecyclerListView implements No
                                 progress.end();
                                 showTimeoutAlert(getContext(), true, (int) time);
                             });
+                        } else if (err != null && "STARGIFT_STAKING_LOCKED".equalsIgnoreCase(err.text)) {
+                            AndroidUtilities.runOnUIThread(() -> {
+                                progress.end();
+                                showStakingLockedAlert(getContext());
+                            });
                         } else if (err != null) {
                             AndroidUtilities.runOnUIThread(() -> {
                                 progress.end();
@@ -1483,6 +1488,13 @@ public class StarGiftSheet extends BottomSheetWithRecyclerListView implements No
                         final long time = Long.parseLong(err.text.substring("STARGIFT_RESELL_TOO_EARLY_".length()));
                         AndroidUtilities.runOnUIThread(() -> {
                             showTimeoutAlert(getContext(), true, (int) time);
+                            if (done != null) {
+                                done.run();
+                            }
+                        });
+                    } else if (err != null && "STARGIFT_STAKING_LOCKED".equalsIgnoreCase(err.text)) {
+                        AndroidUtilities.runOnUIThread(() -> {
+                            showStakingLockedAlert(getContext());
                             if (done != null) {
                                 done.run();
                             }
@@ -1564,6 +1576,14 @@ public class StarGiftSheet extends BottomSheetWithRecyclerListView implements No
             AndroidUtilities.runOnUIThread(close);
         });
         editor.openRepost(sourceView, StoryEntry.repostMessage(messageObjects));
+    }
+
+    private void showStakingLockedAlert(Context context) {
+        new AlertDialog.Builder(context, resourcesProvider)
+            .setTitle(getString(R.string.Gift2StakingLockedTitle))
+            .setMessage(getString(R.string.Gift2StakingLocked))
+            .setPositiveButton(getString(R.string.OK), null)
+            .show();
     }
 
     private void showTimeoutAlertAt(Context context, boolean resell, int availableAt) {
@@ -2007,6 +2027,7 @@ public class StarGiftSheet extends BottomSheetWithRecyclerListView implements No
         private final TextView resellPriceView;
         private final ImageView closeView;
         private final ImageView craftView;
+        private final ImageView stakeView;
         public final ImageView optionsView;
 
         public static class Button extends FrameLayout {
@@ -2043,7 +2064,7 @@ public class StarGiftSheet extends BottomSheetWithRecyclerListView implements No
         private View.OnClickListener onShareClick;
         private View.OnClickListener onResellClick;
         private View.OnClickListener onUpdatePriceClick;
-        public TopView(Context context, Theme.ResourcesProvider resourcesProvider, Runnable dismiss, OnClickListener onMenuClick, OnClickListener onCraftClick, OnClickListener onTransferClick, OnClickListener onWearClick, OnClickListener onShareClick, OnClickListener onResellClick, OnClickListener onUpdatePriceClick) {
+        public TopView(Context context, Theme.ResourcesProvider resourcesProvider, Runnable dismiss, OnClickListener onMenuClick, OnClickListener onCraftClick, OnClickListener onStakeClick, OnClickListener onTransferClick, OnClickListener onWearClick, OnClickListener onShareClick, OnClickListener onResellClick, OnClickListener onUpdatePriceClick) {
             super(context);
             this.resourcesProvider = resourcesProvider;
             this.onShareClick = onShareClick;
@@ -2240,6 +2261,17 @@ public class StarGiftSheet extends BottomSheetWithRecyclerListView implements No
                 craftView.setOnClickListener(onCraftClick);
             }
             craftView.setVisibility(View.GONE);
+
+            stakeView = new ImageView(context);
+            stakeView.setImageResource(R.drawable.filled_earn_stars);
+            stakeView.setScaleType(ImageView.ScaleType.CENTER);
+            stakeView.setBackground(Theme.createSelectorDrawable(0x20ffffff, Theme.RIPPLE_MASK_CIRCLE_20DP));
+            ScaleStateListAnimator.apply(stakeView);
+            if (onStakeClick != null) {
+                addView(stakeView, LayoutHelper.createFrame(42, 42, Gravity.TOP | Gravity.RIGHT, 0, 5, 5 + 42 + 42, 0));
+                stakeView.setOnClickListener(onStakeClick);
+            }
+            stakeView.setVisibility(View.GONE);
 
             optionsView = new ImageView(context);
             optionsView.setContentDescription(getString(R.string.AccDescrGoBack));
@@ -3151,12 +3183,22 @@ public class StarGiftSheet extends BottomSheetWithRecyclerListView implements No
         buttonContainer.setAlpha(1.0f - currentPage.at(PAGE_CRAFTING));
         topView.onSwitchPage(currentPage);
         topView.craftView.setVisibility(currentPage.is(PAGE_INFO) && showCraft() ? View.VISIBLE : View.GONE);
+        topView.stakeView.setVisibility(currentPage.is(PAGE_INFO) && showStake() ? View.VISIBLE : View.GONE);
         final float actionAlpha = Utilities.clamp01(AndroidUtilities.ilerp(container.top() - actionView.getHeight(), 0, dp(32)));
         actionView.setAlpha(currentPage.at(PAGE_INFO) * actionAlpha);
         container.updateTranslations();
         container.invalidate();
         buttonContainer.setVisibility(currentPage.is(PAGE_CRAFTING) ? View.GONE : View.VISIBLE);
         updateUnderButtonContainer();
+    }
+
+    public int getSavedGiftMsgId() {
+        if (savedStarGift != null && savedStarGift.msg_id != 0) {
+            return savedStarGift.msg_id;
+        } else if (messageObject != null) {
+            return messageObject.getId();
+        }
+        return 0;
     }
 
     public int canTransferAt() {
@@ -4199,6 +4241,15 @@ public class StarGiftSheet extends BottomSheetWithRecyclerListView implements No
                     openValueStats(gift.gift_id, gift.title, getGiftName(), value, gift.getDocument(), gift.slug);
                 });
             }
+            if (showStake()) {
+                final int now = ConnectionsManager.getInstance(currentAccount).getCurrentTime();
+                final int stakedUntil = canTransferAt();
+                if (stakedUntil > now) {
+                    tableView.addRow(getString(R.string.Gift2StakingTitle), formatString(R.string.Gift2StakingActive, LocaleController.formatTTLString(stakedUntil - now)), getString(R.string.Gift2StakeGift), this::openStakingInfo);
+                } else {
+                    tableView.addRow(getString(R.string.Gift2StakingTitle), getString(R.string.Gift2StakingNotStaked), getString(R.string.Gift2StakeGift), this::openStakingInfo);
+                }
+            }
         }
         final TL_stars.starGiftAttributeOriginalDetails details = findAttribute(gift.attributes, TL_stars.starGiftAttributeOriginalDetails.class);
         if (details != null) {
@@ -4823,6 +4874,107 @@ public class StarGiftSheet extends BottomSheetWithRecyclerListView implements No
         } else {
             return false;
         }
+    }
+
+    public boolean showStake() {
+        final TL_stars.TL_starGiftUnique gift = getUniqueGift();
+        if (gift == null) return false;
+        return isMineWithActions(currentAccount, DialogObject.getPeerDialogId(gift.owner_id)) && getSavedGiftMsgId() != 0;
+    }
+
+    public void openStakingInfo() {
+        final int msgId = getSavedGiftMsgId();
+        if (msgId == 0) return;
+        final Context context = getContext();
+        if (context == null) return;
+
+        final AlertDialog progressDialog = new AlertDialog(context, AlertDialog.ALERT_TYPE_SPINNER);
+        progressDialog.showDelayed(300);
+
+        final TL_stars.TL_payments_getGiftStakingState req = new TL_stars.TL_payments_getGiftStakingState();
+        req.msg_id = msgId;
+        ConnectionsManager.getInstance(currentAccount).sendRequest(req, (res, err) -> AndroidUtilities.runOnUIThread(() -> {
+            progressDialog.dismiss();
+            if (getContext() == null) return;
+            if (!(res instanceof TL_stars.TL_payments_giftStakingState)) {
+                getBulletinFactory().showForError(err);
+                return;
+            }
+            showStakingDialog((TL_stars.TL_payments_giftStakingState) res);
+        }));
+    }
+
+    private void showStakingDialog(TL_stars.TL_payments_giftStakingState state) {
+        final Context context = getContext();
+        if (context == null) return;
+        final int now = ConnectionsManager.getInstance(currentAccount).getCurrentTime();
+        final boolean staked = state.locked && state.staked_until > now;
+
+        final TableView tableView = new TableView(context, resourcesProvider);
+        if (staked) {
+            tableView.addRow(getString(R.string.Gift2StakingTitle), formatString(R.string.Gift2StakingActive, LocaleController.formatTTLString(state.staked_until - now)));
+        } else {
+            tableView.addRow(getString(R.string.Gift2StakingTitle), getString(R.string.Gift2StakingNotStaked));
+        }
+        final AmountUtils.Amount reward = AmountUtils.Amount.fromNano(state.reward_amount * 1_000_000_000L + state.reward_nanos, AmountUtils.Currency.STARS);
+        final AmountUtils.Amount pool = AmountUtils.Amount.fromNano(state.pool_amount * 1_000_000_000L + state.pool_nanos, AmountUtils.Currency.STARS);
+        tableView.addRow(getString(R.string.Gift2StakingRewardPerHourTitle), formatString(R.string.Gift2StakingRewardPerHour, replaceStars("⭐️" + reward.asFormatString())));
+        tableView.addRow(getString(R.string.Gift2StakingPool), replaceStars("⭐️" + pool.asFormatString()));
+        tableView.addRow(getString(R.string.Gift2StakingActiveStakers), String.valueOf(state.active_stakers));
+
+        final LinearLayout layout = new LinearLayout(context);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.addView(tableView, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0, 8, 0, 8));
+
+        final TextView infoView = TextHelper.makeTextView(context, 14, Theme.key_windowBackgroundWhiteGrayText8, false);
+        infoView.setGravity(Gravity.CENTER);
+        infoView.setText(getString(R.string.Gift2StakingInfo));
+        layout.addView(infoView, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP, 8, 6, 8, 0));
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context, resourcesProvider)
+            .setTitle(getString(R.string.Gift2StakeGift))
+            .setView(layout)
+            .setNegativeButton(getString(R.string.Cancel), null);
+        if (staked) {
+            builder.setPositiveButton(getString(R.string.OK), null);
+        } else {
+            builder.setPositiveButton(getString(R.string.Gift2StakingStakeButton), (dialog, which) -> startGiftStaking());
+        }
+        builder.show();
+    }
+
+    private void startGiftStaking() {
+        final int msgId = getSavedGiftMsgId();
+        if (msgId == 0) return;
+        final Context context = getContext();
+        if (context == null) return;
+
+        final AlertDialog progressDialog = new AlertDialog(context, AlertDialog.ALERT_TYPE_SPINNER);
+        progressDialog.showDelayed(300);
+
+        final TL_stars.TL_payments_startGiftStaking req = new TL_stars.TL_payments_startGiftStaking();
+        req.msg_id = msgId;
+        ConnectionsManager.getInstance(currentAccount).sendRequest(req, (res, err) -> AndroidUtilities.runOnUIThread(() -> {
+            progressDialog.dismiss();
+            if (getContext() == null) return;
+            if (res instanceof TL_stars.TL_payments_giftStakingState) {
+                final TL_stars.TL_payments_giftStakingState state = (TL_stars.TL_payments_giftStakingState) res;
+                if (messageObject != null && messageObject.messageOwner != null && messageObject.messageOwner.action instanceof TLRPC.TL_messageActionStarGiftUnique) {
+                    final TLRPC.TL_messageActionStarGiftUnique action = (TLRPC.TL_messageActionStarGiftUnique) messageObject.messageOwner.action;
+                    action.can_transfer_at = state.staked_until;
+                    action.can_resell_at = state.staked_until;
+                } else if (savedStarGift != null) {
+                    savedStarGift.can_transfer_at = state.staked_until;
+                    savedStarGift.can_resell_at = state.staked_until;
+                }
+                if (onGiftUpdatedListener != null) {
+                    onGiftUpdatedListener.run();
+                }
+                showStakingDialog(state);
+            } else {
+                getBulletinFactory().showForError(err);
+            }
+        }));
     }
 
     public boolean canCraft() {
@@ -6805,6 +6957,8 @@ public class StarGiftSheet extends BottomSheetWithRecyclerListView implements No
                                     .ignoreDetach()
                                     .show();
                             }
+                        } else if (err != null && "STARGIFT_STAKING_LOCKED".equalsIgnoreCase(err.text)) {
+                            showStakingLockedAlert(lastFragment.getParentActivity() != null ? lastFragment.getParentActivity() : getContext());
                         } else {
                             BulletinFactory.of(lastFragment).showForError(err);
                         }

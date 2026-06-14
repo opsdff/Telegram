@@ -4456,6 +4456,80 @@ public class TL_stars {
         }
     }
 
+    public static final class TL_payments_giftStakingState extends TLObject {
+        public static final int constructor = 0x57a11002;
+
+        public int staked_until;
+        public boolean locked;
+        public long reward_amount;
+        public int reward_nanos;
+        public long pool_amount;
+        public int pool_nanos;
+        public int active_stakers;
+
+        public static TL_payments_giftStakingState TLdeserialize(InputSerializedData stream, int constructor, boolean exception) {
+            final TL_payments_giftStakingState result = TL_payments_giftStakingState.constructor != constructor ? null : new TL_payments_giftStakingState();
+            return TLdeserialize(TL_payments_giftStakingState.class, result, stream, constructor, exception);
+        }
+
+        @Override
+        public void readParams(InputSerializedData stream, boolean exception) {
+            staked_until = stream.readInt32(exception);
+            locked = stream.readBool(exception);
+            reward_amount = stream.readInt64(exception);
+            reward_nanos = stream.readInt32(exception);
+            pool_amount = stream.readInt64(exception);
+            pool_nanos = stream.readInt32(exception);
+            active_stakers = stream.readInt32(exception);
+        }
+
+        @Override
+        public void serializeToStream(OutputSerializedData stream) {
+            stream.writeInt32(constructor);
+            stream.writeInt32(staked_until);
+            stream.writeBool(locked);
+            stream.writeInt64(reward_amount);
+            stream.writeInt32(reward_nanos);
+            stream.writeInt64(pool_amount);
+            stream.writeInt32(pool_nanos);
+            stream.writeInt32(active_stakers);
+        }
+    }
+
+    public static final class TL_payments_getGiftStakingState extends TLObject {
+        public static final int constructor = 0x57a11001;
+
+        public int msg_id;
+
+        @Override
+        public TLObject deserializeResponse(InputSerializedData stream, int constructor, boolean exception) {
+            return TL_payments_giftStakingState.TLdeserialize(stream, constructor, exception);
+        }
+
+        @Override
+        public void serializeToStream(OutputSerializedData stream) {
+            stream.writeInt32(constructor);
+            stream.writeInt32(msg_id);
+        }
+    }
+
+    public static final class TL_payments_startGiftStaking extends TLObject {
+        public static final int constructor = 0x57a11003;
+
+        public int msg_id;
+
+        @Override
+        public TLObject deserializeResponse(InputSerializedData stream, int constructor, boolean exception) {
+            return TL_payments_giftStakingState.TLdeserialize(stream, constructor, exception);
+        }
+
+        @Override
+        public void serializeToStream(OutputSerializedData stream) {
+            stream.writeInt32(constructor);
+            stream.writeInt32(msg_id);
+        }
+    }
+
     public static class SavedStarGift extends TLObject {
         public int flags;
         public boolean name_hidden;
