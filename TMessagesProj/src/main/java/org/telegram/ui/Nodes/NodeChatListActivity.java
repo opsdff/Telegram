@@ -155,14 +155,7 @@ public class NodeChatListActivity extends BaseFragment implements NotificationCe
         chatListView.setOnItemClickListener((parent, view, position, id) -> {
             TL_nodes.TL_nodeChat chat = adapter.getItem(position);
             if (chat == null) return;
-            // nodeChat.id is the Telegram dialog/channel peer id
-            Bundle args = new Bundle();
-            // Node chats are channels/groups — id is negative peer id for chats
-            long dialogId = -chat.id; // channel/group ids are negative in TG
-            args.putLong("dialog_id", dialogId);
-            args.putBoolean("node_chat", true);
-            org.telegram.ui.ChatActivity chatActivity = new org.telegram.ui.ChatActivity(args);
-            presentFragment(chatActivity);
+            openNodeChat(chat);
         });
         contentFrame.addView(chatListView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
 
@@ -225,6 +218,7 @@ public class NodeChatListActivity extends BaseFragment implements NotificationCe
         tab.setGravity(Gravity.CENTER);
         tab.setClickable(true);
         tab.setFocusable(true);
+        tab.setBackground(Theme.getSelectorDrawable(false)); // visible ripple on tap
 
         ImageView icon = new ImageView(context);
         icon.setImageResource(iconRes);
@@ -248,16 +242,22 @@ public class NodeChatListActivity extends BaseFragment implements NotificationCe
     }
 
     private void switchTab(int tab) {
-        currentTab = tab;
         if (tab == 0) {
-            // Calls tab
-            NodeCallsActivity calls = new NodeCallsActivity(nodeId);
-            presentFragment(calls);
+            presentFragment(new NodeCallsActivity(nodeId));
         } else if (tab == 1) {
             // Chats tab — already here
         } else if (tab == 2) {
             presentFragment(new NodeSettingsActivity(nodeId));
         }
+    }
+
+    private void openNodeChat(TL_nodes.TL_nodeChat chat) {
+        // Node chats are real Telegram channels/supergroups served by the node server.
+        // ChatActivity expects a positive chat_id.
+        Bundle args = new Bundle();
+        args.putLong("chat_id", chat.id);
+        org.telegram.ui.ChatActivity chatActivity = new org.telegram.ui.ChatActivity(args);
+        presentFragment(chatActivity);
     }
 
     private void loadFullNode() {
