@@ -76,7 +76,7 @@ public class NodeVoiceRoomActivity extends BaseFragment {
         controls.setPadding(AndroidUtilities.dp(16), AndroidUtilities.dp(12), AndroidUtilities.dp(16), AndroidUtilities.dp(12));
 
         muteBtn = new ImageView(context);
-        muteBtn.setImageResource(muted ? R.drawable.calls_mute : R.drawable.calls_mute);
+        muteBtn.setImageResource(muted ? R.drawable.calls_mute_mini : R.drawable.calls_mute_mini);
         muteBtn.setScaleType(ImageView.ScaleType.CENTER);
         muteBtn.setBackground(Theme.createCircleDrawable(AndroidUtilities.dp(52),
                 Theme.getColor(Theme.key_featuredStickers_addButton)));
@@ -84,7 +84,7 @@ public class NodeVoiceRoomActivity extends BaseFragment {
         controls.addView(muteBtn, LayoutHelper.createLinear(52, 52, 0, 0, 24, 0));
 
         cameraBtn = new ImageView(context);
-        cameraBtn.setImageResource(R.drawable.calls_camera);
+        cameraBtn.setImageResource(R.drawable.calls_camera_mini);
         cameraBtn.setScaleType(ImageView.ScaleType.CENTER);
         cameraBtn.setBackground(Theme.createCircleDrawable(AndroidUtilities.dp(52),
                 Theme.getColor(Theme.key_windowBackgroundWhiteGrayText3)));
@@ -164,7 +164,7 @@ public class NodeVoiceRoomActivity extends BaseFragment {
 
                 ImageView muteIcon = new ImageView(context);
                 muteIcon.setTag("mute");
-                muteIcon.setImageResource(R.drawable.calls_mute);
+                muteIcon.setImageResource(R.drawable.calls_mute_mini);
                 muteIcon.setColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText3));
                 row.addView(muteIcon, LayoutHelper.createLinear(20, 20));
                 cv = row;

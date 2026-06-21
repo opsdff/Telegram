@@ -129,7 +129,7 @@ public class NodeProfileActivity extends BaseFragment {
         linkRow.addView(linkView, LayoutHelper.createLinear(0, LayoutHelper.WRAP_CONTENT, 1.0f));
 
         ImageView qrIcon = new ImageView(context);
-        qrIcon.setImageResource(R.drawable.msg_qr_code);
+        qrIcon.setImageResource(R.drawable.msg_qrcode);
         qrIcon.setColorFilter(Theme.getColor(Theme.key_featuredStickers_addButton));
         qrIcon.setOnClickListener(v -> showQR());
         linkRow.addView(qrIcon, LayoutHelper.createLinear(24, 24));

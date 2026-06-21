@@ -78,7 +78,7 @@ public class EditRoleActivity extends BaseFragment {
         });
         actionBar.createMenu().addItem(1, R.drawable.ic_ab_done);
         if (!role.is_owner && !role.is_default) {
-            actionBar.createMenu().addItem(2, R.drawable.ic_delete);
+            actionBar.createMenu().addItem(2, R.drawable.msg_delete);
         }
 
         fragmentView = new FrameLayout(context);

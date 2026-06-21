@@ -50,7 +50,7 @@ public class WhatIsNodeActivity extends BaseFragment {
         // Illustration placeholder (dark-theme duck image from design, will be lottie or placeholder)
         ImageView img = new ImageView(context);
         img.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        img.setImageResource(R.drawable.msg_filled_info);
+        img.setImageResource(R.drawable.msg_info);
         img.setColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
         content.addView(img, LayoutHelper.createLinear(120, 120, Gravity.CENTER_HORIZONTAL, 0, 80, 0, 40));
 

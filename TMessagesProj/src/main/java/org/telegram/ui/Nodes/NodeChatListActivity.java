@@ -52,9 +52,8 @@ public class NodeChatListActivity extends BaseFragment implements NotificationCe
     // FAB
     private ImageView fab;
 
-    @Override
     public void setArguments(Bundle args) {
-        super.setArguments(args);
+        arguments = args;
         nodeId = args.getLong("node_id");
     }
 
@@ -67,7 +66,7 @@ public class NodeChatListActivity extends BaseFragment implements NotificationCe
         }
 
         // ActionBar with hamburger menu (node name) and icons
-        actionBar.setBackButtonImage(R.drawable.ic_ab_menu);
+        actionBar.setBackButtonImage(R.drawable.ic_ab_back);
         actionBar.setTitle(fullNode != null ? fullNode.node.title : "Node");
         actionBar.setSubtitle(fullNode != null
                 ? LocaleController.formatString(R.string.NodesMembersOnline,
@@ -111,7 +110,7 @@ public class NodeChatListActivity extends BaseFragment implements NotificationCe
 
         // FAB (create chat) — only for admins
         fab = new ImageView(context);
-        fab.setImageResource(R.drawable.fab_edit);
+        fab.setImageResource(R.drawable.floating_pencil);
         fab.setScaleType(ImageView.ScaleType.CENTER);
         fab.setBackground(Theme.createSimpleSelectorCircleDrawable(AndroidUtilities.dp(56),
                 Theme.getColor(Theme.key_chats_actionBackground),
@@ -164,7 +163,7 @@ public class NodeChatListActivity extends BaseFragment implements NotificationCe
         empty.setVisibility(View.GONE);
 
         ImageView emptyImg = new ImageView(context);
-        emptyImg.setImageResource(R.drawable.msg_filled_info); // placeholder duck
+        emptyImg.setImageResource(R.drawable.msg_info); // placeholder duck
         emptyImg.setColorFilter(Theme.getColor(Theme.key_emptyListPlaceholder));
         empty.addView(emptyImg, LayoutHelper.createLinear(80, 80, Gravity.CENTER_HORIZONTAL, 0, 0, 0, 16));
 
@@ -195,7 +194,7 @@ public class NodeChatListActivity extends BaseFragment implements NotificationCe
         tabBar.setElevation(AndroidUtilities.dp(4));
 
         callsTab = buildTab(context, R.drawable.msg_calls, LocaleController.getString(R.string.NodesTabCalls), 0);
-        chatsTab = buildTab(context, R.drawable.msg_filled_chats, LocaleController.getString(R.string.NodesTabChats), 1);
+        chatsTab = buildTab(context, R.drawable.msg_groups, LocaleController.getString(R.string.NodesTabChats), 1);
         settingsTab = buildTab(context, R.drawable.msg_settings, LocaleController.getString(R.string.NodesTabSettings), 2);
 
         tabBar.addView(callsTab, LayoutHelper.createLinear(0, LayoutHelper.MATCH_PARENT, 1.0f));

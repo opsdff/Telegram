@@ -3,6 +3,7 @@ package org.telegram.ui.Nodes;
 import org.telegram.messenger.AccountInstance;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.NotificationCenter;
+import org.telegram.messenger.UserConfig;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.tl.TL_nodes;
 
@@ -15,7 +16,7 @@ import java.util.HashMap;
  */
 public class NodeController {
 
-    private static final NodeController[] instances = new NodeController[AccountInstance.MAX_ACCOUNT_COUNT];
+    private static final NodeController[] instances = new NodeController[UserConfig.MAX_ACCOUNT_COUNT];
 
     public static NodeController getInstance(int account) {
         if (instances[account] == null) {

@@ -2,6 +2,7 @@ package org.telegram.ui.Nodes;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;

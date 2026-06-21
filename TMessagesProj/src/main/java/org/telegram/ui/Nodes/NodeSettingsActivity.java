@@ -171,7 +171,7 @@ public class NodeSettingsActivity extends BaseFragment {
         row.addView(tv, LayoutHelper.createLinear(0, LayoutHelper.WRAP_CONTENT, 1.0f));
 
         android.widget.ImageView arrow = new android.widget.ImageView(context);
-        arrow.setImageResource(R.drawable.arrow_right);
+        arrow.setImageResource(R.drawable.attach_arrow_right);
         arrow.setColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText3));
         row.addView(arrow, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
 
