@@ -111,7 +111,7 @@ public class NodeSettingsActivity extends BaseFragment {
         content.addView(editCard, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0, 0, 0, 1));
 
         // Settings rows
-        addSettingRow(context, content, R.drawable.msg_account, LocaleController.getString(R.string.NodesYourNodeProfile),
+        addSettingRow(context, content, R.drawable.msg_usersearch, LocaleController.getString(R.string.NodesYourNodeProfile),
                 () -> presentFragment(new NodeMyProfileActivity(nodeId)));
         addSettingRow(context, content, R.drawable.msg_customize, LocaleController.getString(R.string.NodesNodeTypeMenu),
                 () -> presentFragment(new NodeTypeActivity(nodeId)));
