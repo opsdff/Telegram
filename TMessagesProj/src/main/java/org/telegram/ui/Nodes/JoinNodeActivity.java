@@ -241,11 +241,7 @@ public class JoinNodeActivity extends BaseFragment {
                 NodeController.getInstance(currentAccount).setCurrentFullNode(fn);
                 NodeController.getInstance(currentAccount).invalidateMyNodes();
 
-                NodeChatListActivity chatList = new NodeChatListActivity();
-                Bundle args = new Bundle();
-                args.putLong("node_id", fn.node.id);
-                chatList.setArguments(args);
-                presentFragment(chatList, true);
+                presentFragment(new NodeChatListActivity(fn.node.id), true);
             } else {
                 String msg = (err != null && "NODE_LINK_INVALID".equals(err.text))
                         ? LocaleController.getString(R.string.NodesLinkInvalid)

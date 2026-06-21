@@ -1976,6 +1976,10 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                                                 inputInvoiceSlug = path.substring(1);
                                             } else if (path.startsWith("invoice/")) {
                                                 inputInvoiceSlug = path.substring(path.indexOf('/') + 1);
+                                            } else if (path.startsWith("n/")) {
+                                                final String nodeSlug = path.substring(2);
+                                                openNodeBySlug(nodeSlug);
+                                                return true;
                                             } else if (path.startsWith("nft/")) {
                                                 uniqueGiftSlug = path.substring(path.indexOf('/') + 1);
                                             } else if (path.startsWith("bg/")) {
@@ -2378,6 +2382,14 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                                         url = url.replace("tg:stargift_auction", "tg://stargift_auction");
                                         data = Uri.parse(url);
                                         auctionSlug = data.getQueryParameter("slug");
+                                    } else if (url.startsWith("tg:node") || url.startsWith("tg://node")) {
+                                        url = url.replace("tg:node", "tg://node");
+                                        data = Uri.parse(url);
+                                        final String nodeSlug = data.getQueryParameter("slug");
+                                        if (nodeSlug != null) {
+                                            openNodeBySlug(nodeSlug);
+                                            return true;
+                                        }
                                     } else if (url.startsWith("tg:nft") || url.startsWith("tg://nft")) {
                                         url = url.replace("tg:nft", "tg://nft");
                                         data = Uri.parse(url);
@@ -3904,6 +3916,35 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                 }
             });
         }
+    }
+
+    private void openNodeBySlug(String slug) {
+        final int account = UserConfig.selectedAccount;
+        final org.telegram.tgnet.tl.TL_nodes.TL_nodes_resolveNode req = new org.telegram.tgnet.tl.TL_nodes.TL_nodes_resolveNode();
+        req.link = slug;
+        ConnectionsManager.getInstance(account).sendRequest(req, (res, err) -> AndroidUtilities.runOnUIThread(() -> {
+            if (!(res instanceof org.telegram.tgnet.tl.TL_nodes.TL_nodes_nodePreview)) return;
+            final org.telegram.tgnet.tl.TL_nodes.TL_nodes_nodePreview preview = (org.telegram.tgnet.tl.TL_nodes.TL_nodes_nodePreview) res;
+            // Check if already member → open directly, else show join preview
+            if (preview.node.is_member) {
+                org.telegram.tgnet.tl.TL_nodes.TL_nodes_getFullNode fullReq = new org.telegram.tgnet.tl.TL_nodes.TL_nodes_getFullNode();
+                fullReq.node_id = preview.node.id;
+                ConnectionsManager.getInstance(account).sendRequest(fullReq, (res2, err2) -> AndroidUtilities.runOnUIThread(() -> {
+                    if (res2 instanceof org.telegram.tgnet.tl.TL_nodes.TL_nodes_fullNode) {
+                        org.telegram.ui.Nodes.NodeController.getInstance(account).setCurrentFullNode((org.telegram.tgnet.tl.TL_nodes.TL_nodes_fullNode) res2);
+                        if (actionBarLayout != null) {
+                            actionBarLayout.presentFragment(new org.telegram.ui.Nodes.NodeChatListActivity(preview.node.id));
+                        }
+                    }
+                }));
+            } else {
+                // Show join sheet
+                if (actionBarLayout != null) {
+                    org.telegram.ui.Nodes.JoinNodeActivity joinActivity = new org.telegram.ui.Nodes.JoinNodeActivity();
+                    actionBarLayout.presentFragment(joinActivity);
+                }
+            }
+        }));
     }
 
     private void runLinkRequest(

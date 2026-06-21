@@ -52,9 +52,15 @@ public class NodeChatListActivity extends BaseFragment implements NotificationCe
     // FAB
     private ImageView fab;
 
-    public void setArguments(Bundle args) {
+    public NodeChatListActivity(long nodeId) {
+        Bundle args = new Bundle();
+        args.putLong("node_id", nodeId);
         arguments = args;
-        nodeId = args.getLong("node_id");
+        this.nodeId = nodeId;
+    }
+
+    public NodeChatListActivity() {
+        // for deeplink restore — node_id must be set via NodeController.currentFullNode
     }
 
     @Override

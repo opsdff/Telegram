@@ -133,15 +133,8 @@ public class NewNodeActivity extends BaseFragment {
                 NodeController.getInstance(currentAccount).setCurrentFullNode(fn);
                 NodeController.getInstance(currentAccount).invalidateMyNodes();
 
-                // Navigate to Node Settings (type selection) then Node Chat List
-                NodeChatListActivity chatList = new NodeChatListActivity();
-                Bundle args = new Bundle();
-                args.putLong("node_id", fn.node.id);
-                chatList.setArguments(args);
-
-                // First go to type selection
-                NodeTypeActivity typeActivity = new NodeTypeActivity(fn.node.id);
-                presentFragment(typeActivity);
+                // First go to type selection, then chat list
+                presentFragment(new NodeTypeActivity(fn.node.id));
             } else {
                 if (getParentActivity() != null) {
                     String msg = err != null ? err.text : "Error creating node";

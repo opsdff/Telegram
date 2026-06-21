@@ -105,11 +105,7 @@ public class NodesListActivity extends BaseFragment {
     private void openNode(TL_nodes.TL_node node) {
         NodeController.getInstance(currentAccount).loadFullNode(node.id, (fn, err) -> {
             if (fn != null) {
-                Bundle args = new Bundle();
-                args.putLong("node_id", node.id);
-                NodeChatListActivity chatList = new NodeChatListActivity();
-                chatList.setArguments(args);
-                presentFragment(chatList);
+                presentFragment(new NodeChatListActivity(node.id));
             }
         });
     }

@@ -226,11 +226,7 @@ public class NodeTypeActivity extends BaseFragment {
                 TL_nodes.TL_nodes_fullNode fn = (TL_nodes.TL_nodes_fullNode) res;
                 NodeController.getInstance(currentAccount).setCurrentFullNode(fn);
 
-                NodeChatListActivity chatList = new NodeChatListActivity();
-                android.os.Bundle args = new android.os.Bundle();
-                args.putLong("node_id", fn.node.id);
-                chatList.setArguments(args);
-                presentFragment(chatList, true);
+                presentFragment(new NodeChatListActivity(fn.node.id), true);
             } else {
                 if (getParentActivity() != null) {
                     new AlertDialog.Builder(getParentActivity())
