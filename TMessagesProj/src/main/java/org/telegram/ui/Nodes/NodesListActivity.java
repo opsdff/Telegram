@@ -103,20 +103,8 @@ public class NodesListActivity extends BaseFragment {
     }
 
     private void openNode(TL_nodes.TL_node node) {
-        final org.telegram.ui.ActionBar.AlertDialog progress =
-                new org.telegram.ui.ActionBar.AlertDialog(getParentActivity(),
-                        org.telegram.ui.ActionBar.AlertDialog.ALERT_TYPE_SPINNER);
-        progress.showDelayed(300);
-
-        NodeController.getInstance(currentAccount).loadFullNode(node.id, (fn, err) -> {
-            progress.dismiss();
-            if (fn != null) {
-                presentFragment(new NodeChatListActivity(node.id));
-            } else {
-                // Fallback: open anyway with nodeId, let the screen retry loading
-                presentFragment(new NodeChatListActivity(node.id));
-            }
-        });
+        // Open immediately — NodeChatListActivity loads full data itself
+        presentFragment(new NodeChatListActivity(node.id));
     }
 
     private class NodesAdapter extends android.widget.BaseAdapter {
