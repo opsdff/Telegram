@@ -16,6 +16,7 @@ import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.R;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.TLRPC;
+import org.telegram.tgnet.tl.TL_fragment;
 import org.telegram.tgnet.tl.TL_nodes;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarPopupWindow;
@@ -126,6 +127,10 @@ public class NodeProfileActivity extends BaseFragment {
         linkView = new TextView(context);
         linkView.setTextSize(14);
         linkView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
+        linkView.setClickable(true);
+        linkView.setFocusable(true);
+        linkView.setBackground(Theme.getSelectorDrawable(false));
+        linkView.setOnClickListener(v -> openCollectibleInfo());
         linkRow.addView(linkView, LayoutHelper.createLinear(0, LayoutHelper.WRAP_CONTENT, 1.0f));
 
         ImageView qrIcon = new ImageView(context);
@@ -292,6 +297,36 @@ public class NodeProfileActivity extends BaseFragment {
             NodeController.getInstance(currentAccount).clearCurrentNode();
             NodeController.getInstance(currentAccount).invalidateMyNodes();
             finishFragment();
+        }));
+    }
+
+    private void openCollectibleInfo() {
+        if (fullNode == null) return;
+        org.telegram.tgnet.tl.TL_nodes.TL_node node = fullNode.node;
+        if (!node.is_public || TextUtils.isEmpty(node.link)) return;
+
+        final String slug = node.link;
+        final org.telegram.ui.ActionBar.AlertDialog progress =
+                new org.telegram.ui.ActionBar.AlertDialog(getParentActivity(),
+                        org.telegram.ui.ActionBar.AlertDialog.ALERT_TYPE_SPINNER);
+        progress.showDelayed(300);
+
+        TL_nodes.TL_nodes_getCollectibleInfo req = new TL_nodes.TL_nodes_getCollectibleInfo();
+        req.link = slug;
+        ConnectionsManager.getInstance(currentAccount).sendRequest(req, (res, err) -> AndroidUtilities.runOnUIThread(() -> {
+            progress.dismiss();
+            if (!(res instanceof org.telegram.tgnet.tl.TL_fragment.TL_collectibleInfo)) return;
+            org.telegram.tgnet.tl.TL_fragment.TL_collectibleInfo info =
+                    (org.telegram.tgnet.tl.TL_fragment.TL_collectibleInfo) res;
+            if (getContext() == null) return;
+            org.telegram.ui.FragmentUsernameBottomSheet.open(
+                    getContext(),
+                    org.telegram.ui.FragmentUsernameBottomSheet.TYPE_USERNAME,
+                    slug,
+                    null,  // no owner user/chat object, it's a node
+                    info,
+                    getResourceProvider()
+            );
         }));
     }
 

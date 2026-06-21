@@ -2100,6 +2100,24 @@ public class TL_nodes {
     public static final long PERM_REMAIN_ANONYMOUS    = 512L;
     public static final long PERM_MANAGE_ROLES        = 1024L;
 
+    // nodes.getCollectibleInfo#4e0d2032 link:string = fragment.CollectibleInfo
+    public static class TL_nodes_getCollectibleInfo extends TLObject {
+        public static final int constructor = 0x4e0d2032;
+
+        public String link;
+
+        @Override
+        public TLObject deserializeResponse(InputSerializedData stream, int cons, boolean exception) {
+            return TL_fragment.TL_collectibleInfo.TLdeserialize(stream, cons, exception);
+        }
+
+        @Override
+        public void serializeToStream(OutputSerializedData stream) {
+            stream.writeInt32(constructor);
+            stream.writeString(link);
+        }
+    }
+
     public static final long PERM_MEMBER_DEFAULT = PERM_CREATE_OWN_CHATS | PERM_ADD_MEMBERS;
     public static final long PERM_OWNER_ALL      = 0x7FFL;
 
