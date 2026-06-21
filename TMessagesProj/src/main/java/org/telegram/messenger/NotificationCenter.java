@@ -371,6 +371,14 @@ public class NotificationCenter {
     public static final int callTabsVisibleToggled = totalEvents++;
     public static final int contactsPermissionBadgeCheck = totalEvents++;
 
+    // Nodes feature
+    public static final int nodeListUpdated = totalEvents++;
+    public static final int activeNodeChanged = totalEvents++;
+    public static final int nodeChatListUpdated = totalEvents++;
+    public static final int nodeRolesUpdated = totalEvents++;
+    public static final int nodeMembersUpdated = totalEvents++;
+    public static final int nodeVoiceRoomsUpdated = totalEvents++;
+
     public static boolean alreadyLogged;
 
     private final SparseArray<ArrayList<NotificationCenterDelegate>> observers = new SparseArray<>();
