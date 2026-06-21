@@ -44,7 +44,6 @@ public class NodeChatListActivity extends BaseFragment implements NotificationCe
     private int currentTab = 1; // 0=calls, 1=chats, 2=settings
 
     // Content views
-    private FrameLayout contentFrame;
     private View emptyView;
     private ListView chatListView;
     private NodeChatsAdapter adapter;
@@ -99,26 +98,40 @@ public class NodeChatListActivity extends BaseFragment implements NotificationCe
         });
         actionBar.createMenu().addItem(2, R.drawable.ic_ab_other); // settings icon
 
-        // Use LinearLayout so tabBar never overlaps contentFrame
+        // Flat vertical layout (mirrors the working NodesListActivity): list + emptyView
+        // as weighted siblings (GONE collapses), tabBar fixed at bottom. No FrameLayout
+        // overlay and no elevation — those were intercepting all touch events.
         fragmentView = new FrameLayout(context);
         fragmentView.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray));
         FrameLayout root = (FrameLayout) fragmentView;
 
         LinearLayout column = new LinearLayout(context);
         column.setOrientation(LinearLayout.VERTICAL);
-        root.addView(column, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
 
-        // Content area fills remaining space
-        contentFrame = new FrameLayout(context);
-        column.addView(contentFrame, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 0, 1.0f));
+        // Chat list (weighted)
+        chatListView = new ListView(context);
+        chatListView.setDividerHeight(0);
+        chatListView.setDivider(null);
+        chatListView.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
+        adapter = new NodeChatsAdapter(context);
+        chatListView.setAdapter(adapter);
+        chatListView.setOnItemClickListener((parent, view, position, id) -> {
+            TL_nodes.TL_nodeChat chat = adapter.getItem(position);
+            if (chat != null) openNodeChat(chat);
+        });
+        column.addView(chatListView, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 0, 1.0f));
 
-        buildChatsContent(context);
+        // Empty view (weighted sibling, GONE by default — collapses when hidden)
+        emptyView = buildEmptyView(context);
+        column.addView(emptyView, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 0, 1.0f));
 
-        // Bottom tab bar — fixed 56dp, never overlaps
+        // Bottom tab bar — fixed 56dp
         LinearLayout tabBar = buildTabBar(context);
         column.addView(tabBar, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 56));
 
-        // FAB (create chat) — only for admins
+        root.addView(column, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
+
+        // FAB (create chat) — only for admins. Sits above the tab bar (72dp).
         fab = new ImageView(context);
         fab.setImageResource(R.drawable.floating_pencil);
         fab.setScaleType(ImageView.ScaleType.CENTER);
@@ -142,26 +155,6 @@ public class NodeChatListActivity extends BaseFragment implements NotificationCe
         }
 
         return fragmentView;
-    }
-
-    private void buildChatsContent(Context context) {
-        // Chat list
-        chatListView = new ListView(context);
-        chatListView.setDividerHeight(0);
-        chatListView.setDivider(null);
-        chatListView.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
-        adapter = new NodeChatsAdapter(context);
-        chatListView.setAdapter(adapter);
-        chatListView.setOnItemClickListener((parent, view, position, id) -> {
-            TL_nodes.TL_nodeChat chat = adapter.getItem(position);
-            if (chat == null) return;
-            openNodeChat(chat);
-        });
-        contentFrame.addView(chatListView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
-
-        // Empty view
-        emptyView = buildEmptyView(context);
-        contentFrame.addView(emptyView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
     }
 
     private View buildEmptyView(Context context) {
@@ -198,8 +191,6 @@ public class NodeChatListActivity extends BaseFragment implements NotificationCe
         LinearLayout tabBar = new LinearLayout(context);
         tabBar.setOrientation(LinearLayout.HORIZONTAL);
         tabBar.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
-        // Top border
-        tabBar.setElevation(AndroidUtilities.dp(4));
 
         callsTab = buildTab(context, R.drawable.msg_calls, LocaleController.getString(R.string.NodesTabCalls), 0);
         chatsTab = buildTab(context, R.drawable.msg_groups, LocaleController.getString(R.string.NodesTabChats), 1);
