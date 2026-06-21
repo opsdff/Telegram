@@ -479,6 +479,13 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
         });
 
         ItemOptions o = ItemOptions.makeOptions(this, button);
+
+        // Nodes entry point
+        o.add(R.drawable.msg_groups, getString(R.string.NodesSidebarTitle), () -> {
+            presentFragment(new org.telegram.ui.Nodes.NodesListActivity());
+        });
+        o.addGap();
+
         if (UserConfig.getActivatedAccountsCount() < UserConfig.MAX_ACCOUNT_COUNT) {
             o.add(R.drawable.msg_addbot, getString(R.string.AddAccount), () -> {
                 int freeAccounts = 0;
