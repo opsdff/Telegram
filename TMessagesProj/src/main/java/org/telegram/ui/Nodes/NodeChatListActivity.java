@@ -99,20 +99,24 @@ public class NodeChatListActivity extends BaseFragment implements NotificationCe
         });
         actionBar.createMenu().addItem(2, R.drawable.ic_ab_other); // settings icon
 
+        // Use LinearLayout so tabBar never overlaps contentFrame
         fragmentView = new FrameLayout(context);
         fragmentView.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray));
         FrameLayout root = (FrameLayout) fragmentView;
 
-        // Content area (above bottom bar)
+        LinearLayout column = new LinearLayout(context);
+        column.setOrientation(LinearLayout.VERTICAL);
+        root.addView(column, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
+
+        // Content area fills remaining space
         contentFrame = new FrameLayout(context);
-        root.addView(contentFrame, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT,
-                Gravity.TOP, 0, 0, 0, 56));
+        column.addView(contentFrame, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 0, 1.0f));
 
         buildChatsContent(context);
 
-        // Bottom tab bar
+        // Bottom tab bar — fixed 56dp, never overlaps
         LinearLayout tabBar = buildTabBar(context);
-        root.addView(tabBar, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 56, Gravity.BOTTOM));
+        column.addView(tabBar, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 56));
 
         // FAB (create chat) — only for admins
         fab = new ImageView(context);
@@ -252,11 +256,7 @@ public class NodeChatListActivity extends BaseFragment implements NotificationCe
         } else if (tab == 1) {
             // Chats tab — already here
         } else if (tab == 2) {
-            // Settings
-            if (fullNode != null) {
-                NodeSettingsActivity settings = new NodeSettingsActivity(nodeId);
-                presentFragment(settings);
-            }
+            presentFragment(new NodeSettingsActivity(nodeId));
         }
     }
 
