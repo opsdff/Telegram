@@ -264,8 +264,8 @@ public class NodeChatListActivity extends BaseFragment implements NotificationCe
                 actionBar.setTitle(fn.node.title);
                 actionBar.setSubtitle(LocaleController.formatString(R.string.NodesMembersOnline,
                         fn.node.members_count, fn.node.online_count));
-                updateView();
             }
+            updateView(); // always update — shows empty or error state if fn==null
         });
     }
 
