@@ -150,10 +150,15 @@ public class NodeChatListActivity extends BaseFragment implements NotificationCe
         chatListView.setAdapter(adapter);
         chatListView.setOnItemClickListener((parent, view, position, id) -> {
             TL_nodes.TL_nodeChat chat = adapter.getItem(position);
-            if (chat != null) {
-                // Open chat — would navigate to ChatActivity with node chat params
-                // For now just show chat name as placeholder
-            }
+            if (chat == null) return;
+            // nodeChat.id is the Telegram dialog/channel peer id
+            Bundle args = new Bundle();
+            // Node chats are channels/groups — id is negative peer id for chats
+            long dialogId = -chat.id; // channel/group ids are negative in TG
+            args.putLong("dialog_id", dialogId);
+            args.putBoolean("node_chat", true);
+            org.telegram.ui.ChatActivity chatActivity = new org.telegram.ui.ChatActivity(args);
+            presentFragment(chatActivity);
         });
         contentFrame.addView(chatListView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
 
