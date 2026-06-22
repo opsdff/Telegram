@@ -10716,13 +10716,42 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     private ArrayList<TLRPC.Dialog> botShareDialogs;
 
     @NonNull
+    // Node chats (branches) are rendered as channels but must never show up in
+    // the account's main chat list. Drop their dialogs here. Fast path returns
+    // the original list untouched when no node-chat dialog is present.
+    private ArrayList<TLRPC.Dialog> filterNodeChats(ArrayList<TLRPC.Dialog> list) {
+        if (list == null || list.isEmpty()) {
+            return list;
+        }
+        boolean has = false;
+        for (int i = 0, n = list.size(); i < n; i++) {
+            TLRPC.Dialog d = list.get(i);
+            if (d != null && d.id < 0 && org.telegram.ui.Nodes.NodeController.isNodeChat(-d.id)) {
+                has = true;
+                break;
+            }
+        }
+        if (!has) {
+            return list;
+        }
+        ArrayList<TLRPC.Dialog> out = new ArrayList<>(list.size());
+        for (int i = 0, n = list.size(); i < n; i++) {
+            TLRPC.Dialog d = list.get(i);
+            if (d != null && d.id < 0 && org.telegram.ui.Nodes.NodeController.isNodeChat(-d.id)) {
+                continue;
+            }
+            out.add(d);
+        }
+        return out;
+    }
+
     public ArrayList<TLRPC.Dialog> getDialogsArray(int currentAccount, int dialogsType, int folderId, boolean frozen) {
         if (frozen && frozenDialogsList != null) {
             return frozenDialogsList;
         }
         MessagesController messagesController = AccountInstance.getInstance(currentAccount).getMessagesController();
         if (dialogsType == DIALOGS_TYPE_DEFAULT) {
-            return messagesController.getDialogs(folderId);
+            return filterNodeChats(messagesController.getDialogs(folderId));
         } else if (dialogsType == DIALOGS_TYPE_WIDGET || dialogsType == DIALOGS_TYPE_IMPORT_HISTORY) {
             return messagesController.dialogsServerOnly;
         } else if (dialogsType == DIALOGS_TYPE_ADD_USERS_TO) {
@@ -10762,12 +10791,12 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         } else if (dialogsType == 7 || dialogsType == 8) {
             MessagesController.DialogFilter dialogFilter = messagesController.selectedDialogFilter[dialogsType == 7 ? 0 : 1];
             if (dialogFilter == null) {
-                return messagesController.getDialogs(folderId);
+                return filterNodeChats(messagesController.getDialogs(folderId));
             } else {
                 if (initialDialogsType == DIALOGS_TYPE_FORWARD) {
                     return dialogFilter.dialogsForward;
                 }
-                return dialogFilter.dialogs;
+                return filterNodeChats(dialogFilter.dialogs);
             }
         } else if (dialogsType == DIALOGS_TYPE_BLOCK) {
             return messagesController.dialogsForBlock;

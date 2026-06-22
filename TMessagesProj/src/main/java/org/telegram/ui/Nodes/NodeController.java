@@ -31,6 +31,27 @@ public class NodeController {
 
     private final int currentAccount;
 
+    // Ids of all known node chats (branches). They are rendered as channels but
+    // must NOT appear in the account's main chat list — see DialogsActivity.
+    private static final java.util.HashSet<Long> NODE_CHAT_IDS = new java.util.HashSet<>();
+
+    public static void registerNodeChat(long id) {
+        synchronized (NODE_CHAT_IDS) { NODE_CHAT_IDS.add(id); }
+    }
+
+    public static void registerNodeChats(java.util.List<TL_nodes.TL_nodeChat> chats) {
+        if (chats == null) return;
+        synchronized (NODE_CHAT_IDS) {
+            for (TL_nodes.TL_nodeChat c : chats) {
+                if (c != null) NODE_CHAT_IDS.add(c.id);
+            }
+        }
+    }
+
+    public static boolean isNodeChat(long id) {
+        synchronized (NODE_CHAT_IDS) { return NODE_CHAT_IDS.contains(id); }
+    }
+
     // Cached list of nodes the user belongs to
     private final ArrayList<TL_nodes.TL_node> myNodes = new ArrayList<>();
     private boolean myNodesLoaded = false;
@@ -86,6 +107,7 @@ public class NodeController {
 
     public void setCurrentFullNode(TL_nodes.TL_nodes_fullNode fn) {
         currentFullNode = fn;
+        if (fn != null) registerNodeChats(fn.chats);
         NotificationCenter.getInstance(currentAccount).postNotificationName(NotificationCenter.activeNodeChanged);
     }
 
@@ -101,6 +123,7 @@ public class NodeController {
             if (res instanceof TL_nodes.TL_nodes_fullNode) {
                 TL_nodes.TL_nodes_fullNode fn = (TL_nodes.TL_nodes_fullNode) res;
                 currentFullNode = fn;
+                registerNodeChats(fn.chats);
                 NotificationCenter.getInstance(currentAccount).postNotificationName(NotificationCenter.activeNodeChanged);
                 if (callback != null) callback.onLoaded(fn, null);
             } else {

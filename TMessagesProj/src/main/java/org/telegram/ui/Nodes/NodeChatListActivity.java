@@ -248,6 +248,7 @@ public class NodeChatListActivity extends BaseFragment implements NotificationCe
         // as regular TLRPC.Chat objects, so ChatActivity.onFragmentCreate() would return false
         // (chat not found) and silently abort. Build a synthetic channel and cache it first.
         org.telegram.messenger.MessagesController mc = org.telegram.messenger.MessagesController.getInstance(currentAccount);
+        NodeController.registerNodeChat(chat.id);  // keep it out of the main chat list
         TLRPC.Chat existing = mc.getChat(chat.id);
         if (existing == null) {
             TLRPC.TL_channel ch = new TLRPC.TL_channel();
@@ -349,6 +350,7 @@ public class NodeChatListActivity extends BaseFragment implements NotificationCe
             progress.dismiss();
             if (res instanceof TL_nodes.TL_nodeChat) {
                 TL_nodes.TL_nodeChat chat = (TL_nodes.TL_nodeChat) res;
+                NodeController.registerNodeChat(chat.id);
                 chats.add(0, chat);
                 if (fullNode != null) fullNode.chats.add(0, chat);
                 updateView();
