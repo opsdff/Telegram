@@ -382,7 +382,10 @@ public class NodeChatListActivity extends BaseFragment implements NotificationCe
                 row.setOrientation(LinearLayout.HORIZONTAL);
                 row.setGravity(Gravity.CENTER_VERTICAL);
                 row.setPadding(AndroidUtilities.dp(16), AndroidUtilities.dp(10), AndroidUtilities.dp(16), AndroidUtilities.dp(10));
-                row.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
+                // Clickable row with ripple; block children from stealing the touch
+                row.setBackground(Theme.getSelectorDrawable(false));
+                row.setClickable(true);
+                row.setDescendantFocusability(android.view.ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 
                 BackupImageView av = new BackupImageView(context);
                 av.setRoundRadius(AndroidUtilities.dp(21));
@@ -405,6 +408,8 @@ public class NodeChatListActivity extends BaseFragment implements NotificationCe
 
             TL_nodes.TL_nodeChat chat = getItem(position);
             LinearLayout row = (LinearLayout) convertView;
+            // Direct click listener — reliable regardless of ListView item-click quirks
+            row.setOnClickListener(v -> openNodeChat(chat));
 
             BackupImageView av = (BackupImageView) row.findViewWithTag("avatar");
             AvatarDrawable ad = new AvatarDrawable();
