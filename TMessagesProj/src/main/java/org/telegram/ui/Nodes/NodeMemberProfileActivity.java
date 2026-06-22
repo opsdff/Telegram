@@ -128,7 +128,7 @@ public class NodeMemberProfileActivity extends BaseFragment {
                 data = (TL_nodes.TL_nodes_memberProfile) res;
                 bindProfile();
             } else if (getParentActivity() != null) {
-                getBulletinFactory().showForError(err);
+                org.telegram.ui.Components.BulletinFactory.of(NodeMemberProfileActivity.this).showForError(err);
             }
         }));
     }
