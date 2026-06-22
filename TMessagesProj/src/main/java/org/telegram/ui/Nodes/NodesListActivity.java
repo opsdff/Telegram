@@ -121,9 +121,9 @@ public class NodesListActivity extends BaseFragment {
                 row.setOrientation(LinearLayout.HORIZONTAL);
                 row.setGravity(Gravity.CENTER_VERTICAL);
                 row.setPadding(AndroidUtilities.dp(16), AndroidUtilities.dp(12), AndroidUtilities.dp(16), AndroidUtilities.dp(12));
-                row.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
                 row.setClickable(true);
                 row.setBackground(Theme.getSelectorDrawable(false));
+                row.setDescendantFocusability(android.view.ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 
                 BackupImageView av = new BackupImageView(context);
                 av.setRoundRadius(AndroidUtilities.dp(20));
@@ -150,6 +150,7 @@ public class NodesListActivity extends BaseFragment {
 
             TL_nodes.TL_node node = getItem(pos);
             LinearLayout row = (LinearLayout) cv;
+            row.setOnClickListener(v -> openNode(node));
 
             BackupImageView av = (BackupImageView) row.findViewWithTag("av");
             AvatarDrawable ad = new AvatarDrawable();
