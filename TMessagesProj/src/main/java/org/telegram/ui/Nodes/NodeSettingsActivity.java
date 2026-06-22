@@ -44,6 +44,7 @@ public class NodeSettingsActivity extends BaseFragment {
         actionBar.setBackButtonImage(R.drawable.ic_ab_back);
         actionBar.setTitle(LocaleController.getString(R.string.NodesEdit));
         actionBar.setBackgroundColor(Theme.getColor(Theme.key_actionBarDefault));
+        final boolean isOwner = NodeController.getInstance(currentAccount).isNodeOwner();
         actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
             @Override
             public void onItemClick(int id) {
@@ -51,7 +52,9 @@ public class NodeSettingsActivity extends BaseFragment {
                 else if (id == 1) doSave();
             }
         });
-        actionBar.createMenu().addItem(1, R.drawable.ic_ab_done);
+        if (isOwner) {
+            actionBar.createMenu().addItem(1, R.drawable.ic_ab_done); // save node info — owner only
+        }
 
         fragmentView = new FrameLayout(context);
         fragmentView.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray));
@@ -108,32 +111,39 @@ public class NodeSettingsActivity extends BaseFragment {
         descField.setGravity(Gravity.TOP);
         editCard.addView(descField, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
 
-        content.addView(editCard, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0, 0, 0, 1));
+        // Node-info edit card (name/photo/description) — owner only
+        if (isOwner) {
+            content.addView(editCard, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0, 0, 0, 1));
+        }
 
-        // Settings rows
+        // Settings rows. Non-owners can only edit their own multiprofile.
         addSettingRow(context, content, R.drawable.msg_usersearch, LocaleController.getString(R.string.NodesYourNodeProfile),
                 () -> presentFragment(new NodeMyProfileActivity(nodeId)));
-        addSettingRow(context, content, R.drawable.msg_customize, LocaleController.getString(R.string.NodesNodeTypeMenu),
-                () -> presentFragment(new NodeTypeActivity(nodeId)));
-        addSettingRow(context, content, R.drawable.msg_link, LocaleController.getString(R.string.NodesInviteLinks),
-                () -> presentFragment(new NodeLinksActivity(nodeId)));
-        addSettingRow(context, content, R.drawable.msg_permissions, LocaleController.getString(R.string.NodesRoles),
-                () -> presentFragment(new NodeRolesActivity(nodeId)));
-        addSettingRow(context, content, R.drawable.msg_groups, LocaleController.getString(R.string.NodesMembersCount),
-                () -> presentFragment(new NodeMembersActivity(nodeId)));
-        addSettingRow(context, content, R.drawable.msg_log, LocaleController.getString(R.string.NodesRecentActions), () -> {});
+        if (isOwner) {
+            addSettingRow(context, content, R.drawable.msg_customize, LocaleController.getString(R.string.NodesNodeTypeMenu),
+                    () -> presentFragment(new NodeTypeActivity(nodeId)));
+            addSettingRow(context, content, R.drawable.msg_link, LocaleController.getString(R.string.NodesInviteLinks),
+                    () -> presentFragment(new NodeLinksActivity(nodeId)));
+            addSettingRow(context, content, R.drawable.msg_permissions, LocaleController.getString(R.string.NodesRoles),
+                    () -> presentFragment(new NodeRolesActivity(nodeId)));
+            addSettingRow(context, content, R.drawable.msg_groups, LocaleController.getString(R.string.NodesMembersCount),
+                    () -> presentFragment(new NodeMembersActivity(nodeId)));
+            addSettingRow(context, content, R.drawable.msg_log, LocaleController.getString(R.string.NodesRecentActions), () -> {});
+        }
 
-        // Delete row
-        content.addView(new View(context), LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 1, 0, 8, 0, 0));
+        // Delete node — owner only. (Leave Node temporarily removed.)
+        if (isOwner) {
+            content.addView(new View(context), LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 1, 0, 8, 0, 0));
 
-        TextView deleteRow = new TextView(context);
-        deleteRow.setText(LocaleController.getString(R.string.NodesDeleteAndLeave));
-        deleteRow.setTextSize(16);
-        deleteRow.setTextColor(Theme.getColor(Theme.key_text_RedRegular));
-        deleteRow.setPadding(AndroidUtilities.dp(16), AndroidUtilities.dp(16), AndroidUtilities.dp(16), AndroidUtilities.dp(16));
-        deleteRow.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
-        deleteRow.setOnClickListener(v -> confirmDeleteNode());
-        content.addView(deleteRow, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
+            TextView deleteRow = new TextView(context);
+            deleteRow.setText(LocaleController.getString(R.string.NodesDeleteAndLeave));
+            deleteRow.setTextSize(16);
+            deleteRow.setTextColor(Theme.getColor(Theme.key_text_RedRegular));
+            deleteRow.setPadding(AndroidUtilities.dp(16), AndroidUtilities.dp(16), AndroidUtilities.dp(16), AndroidUtilities.dp(16));
+            deleteRow.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
+            deleteRow.setOnClickListener(v -> confirmDeleteNode());
+            content.addView(deleteRow, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
+        }
 
         sv.addView(content, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
         ((FrameLayout) fragmentView).addView(sv, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));

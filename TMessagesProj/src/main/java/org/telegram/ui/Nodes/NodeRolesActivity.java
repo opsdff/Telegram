@@ -54,33 +54,35 @@ public class NodeRolesActivity extends BaseFragment {
         fragmentView = new FrameLayout(context);
         fragmentView.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray));
 
-        // Header row: "Add New Role"
+        // Header row: "Add New Role" — owner only
         LinearLayout root = new LinearLayout(context);
         root.setOrientation(LinearLayout.VERTICAL);
 
-        LinearLayout addRow = new LinearLayout(context);
-        addRow.setOrientation(LinearLayout.HORIZONTAL);
-        addRow.setGravity(Gravity.CENTER_VERTICAL);
-        addRow.setPadding(AndroidUtilities.dp(16), AndroidUtilities.dp(14), AndroidUtilities.dp(16), AndroidUtilities.dp(14));
-        addRow.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
-        addRow.setClickable(true);
-        addRow.setFocusable(true);
-        addRow.setBackground(Theme.getSelectorDrawable(false));
-        addRow.setOnClickListener(v -> presentFragment(new AddNewRoleActivity(nodeId)));
+        final boolean isOwner = NodeController.getInstance(currentAccount).isNodeOwner();
+        if (isOwner) {
+            LinearLayout addRow = new LinearLayout(context);
+            addRow.setOrientation(LinearLayout.HORIZONTAL);
+            addRow.setGravity(Gravity.CENTER_VERTICAL);
+            addRow.setPadding(AndroidUtilities.dp(16), AndroidUtilities.dp(14), AndroidUtilities.dp(16), AndroidUtilities.dp(14));
+            addRow.setClickable(true);
+            addRow.setFocusable(true);
+            addRow.setBackground(Theme.getSelectorDrawable(false));
+            addRow.setOnClickListener(v -> presentFragment(new AddNewRoleActivity(nodeId)));
 
-        ImageView addIcon = new ImageView(context);
-        addIcon.setImageResource(R.drawable.msg_addcontact);
-        addIcon.setColorFilter(Theme.getColor(Theme.key_featuredStickers_addButton));
-        addRow.addView(addIcon, LayoutHelper.createLinear(24, 24, 0, 0, 16, 0));
+            ImageView addIcon = new ImageView(context);
+            addIcon.setImageResource(R.drawable.msg_addcontact);
+            addIcon.setColorFilter(Theme.getColor(Theme.key_featuredStickers_addButton));
+            addRow.addView(addIcon, LayoutHelper.createLinear(24, 24, 0, 0, 16, 0));
 
-        TextView addText = new TextView(context);
-        addText.setText(LocaleController.getString(R.string.NodesAddNewRole));
-        addText.setTextSize(16);
-        addText.setTextColor(Theme.getColor(Theme.key_featuredStickers_addButton));
-        addRow.addView(addText, LayoutHelper.createLinear(0, LayoutHelper.WRAP_CONTENT, 1.0f));
-        root.addView(addRow, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
+            TextView addText = new TextView(context);
+            addText.setText(LocaleController.getString(R.string.NodesAddNewRole));
+            addText.setTextSize(16);
+            addText.setTextColor(Theme.getColor(Theme.key_featuredStickers_addButton));
+            addRow.addView(addText, LayoutHelper.createLinear(0, LayoutHelper.WRAP_CONTENT, 1.0f));
+            root.addView(addRow, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
 
-        root.addView(new View(context), LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 1));
+            root.addView(new View(context), LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 1));
+        }
 
         // Roles list
         ListView listView = new ListView(context);

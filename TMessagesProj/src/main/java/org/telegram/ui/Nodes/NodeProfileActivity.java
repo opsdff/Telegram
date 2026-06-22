@@ -73,8 +73,12 @@ public class NodeProfileActivity extends BaseFragment {
                 }
             }
         });
-        actionBar.createMenu().addItem(1, R.drawable.msg_edit);
-        actionBar.createMenu().addItem(2, R.drawable.ic_ab_other);
+        // Edit + more (delete) — owner only
+        final boolean ownerMenu = NodeController.getInstance(currentAccount).isNodeOwner();
+        if (ownerMenu) {
+            actionBar.createMenu().addItem(1, R.drawable.msg_edit);
+            actionBar.createMenu().addItem(2, R.drawable.ic_ab_other);
+        }
 
         fragmentView = new FrameLayout(context);
         fragmentView.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray));
@@ -240,20 +244,12 @@ public class NodeProfileActivity extends BaseFragment {
 
     private void showMoreMenu() {
         if (getParentActivity() == null) return;
-        String[] items;
         boolean isOwner = fullNode != null && fullNode.node.is_owner;
-        if (isOwner) {
-            items = new String[]{
-                    LocaleController.getString(R.string.NodesLeaveNode),
-                    LocaleController.getString(R.string.NodesDeleteNode)
-            };
-        } else {
-            items = new String[]{LocaleController.getString(R.string.NodesLeaveNode)};
-        }
+        if (!isOwner) return; // only owner has the more menu (Leave Node temporarily removed)
+        String[] items = new String[]{LocaleController.getString(R.string.NodesDeleteNode)};
         new AlertDialog.Builder(getParentActivity())
                 .setItems(items, (d, which) -> {
-                    if (which == 0) confirmLeave();
-                    else if (which == 1 && isOwner) confirmDelete();
+                    if (which == 0) confirmDelete();
                 })
                 .show();
     }

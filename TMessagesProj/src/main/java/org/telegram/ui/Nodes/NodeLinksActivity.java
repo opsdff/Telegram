@@ -38,6 +38,7 @@ public class NodeLinksActivity extends BaseFragment {
         actionBar.setBackButtonImage(R.drawable.ic_ab_back);
         actionBar.setTitle(LocaleController.getString(R.string.NodesInviteLinks));
         actionBar.setBackgroundColor(Theme.getColor(Theme.key_actionBarDefault));
+        final boolean isOwner = NodeController.getInstance(currentAccount).isNodeOwner();
         actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
             @Override
             public void onItemClick(int id) {
@@ -45,7 +46,9 @@ public class NodeLinksActivity extends BaseFragment {
                 else if (id == 1) createNewLink();
             }
         });
-        actionBar.createMenu().addItem(1, R.drawable.ic_ab_other);
+        if (isOwner) {
+            actionBar.createMenu().addItem(1, R.drawable.ic_ab_other);
+        }
 
         fragmentView = new FrameLayout(context);
         fragmentView.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
@@ -53,26 +56,28 @@ public class NodeLinksActivity extends BaseFragment {
         LinearLayout root = new LinearLayout(context);
         root.setOrientation(LinearLayout.VERTICAL);
 
-        // New Link button
-        LinearLayout newLinkRow = new LinearLayout(context);
-        newLinkRow.setOrientation(LinearLayout.HORIZONTAL);
-        newLinkRow.setGravity(Gravity.CENTER_VERTICAL);
-        newLinkRow.setPadding(AndroidUtilities.dp(16), AndroidUtilities.dp(14), AndroidUtilities.dp(16), AndroidUtilities.dp(14));
-        newLinkRow.setClickable(true);
-        newLinkRow.setBackground(Theme.getSelectorDrawable(false));
-        newLinkRow.setOnClickListener(v -> createNewLink());
+        // New Link button — owner only
+        if (isOwner) {
+            LinearLayout newLinkRow = new LinearLayout(context);
+            newLinkRow.setOrientation(LinearLayout.HORIZONTAL);
+            newLinkRow.setGravity(Gravity.CENTER_VERTICAL);
+            newLinkRow.setPadding(AndroidUtilities.dp(16), AndroidUtilities.dp(14), AndroidUtilities.dp(16), AndroidUtilities.dp(14));
+            newLinkRow.setClickable(true);
+            newLinkRow.setBackground(Theme.getSelectorDrawable(false));
+            newLinkRow.setOnClickListener(v -> createNewLink());
 
-        ImageView icon = new ImageView(context);
-        icon.setImageResource(R.drawable.msg_link);
-        icon.setColorFilter(Theme.getColor(Theme.key_featuredStickers_addButton));
-        newLinkRow.addView(icon, LayoutHelper.createLinear(24, 24, 0, 0, 16, 0));
+            ImageView icon = new ImageView(context);
+            icon.setImageResource(R.drawable.msg_link);
+            icon.setColorFilter(Theme.getColor(Theme.key_featuredStickers_addButton));
+            newLinkRow.addView(icon, LayoutHelper.createLinear(24, 24, 0, 0, 16, 0));
 
-        TextView tv = new TextView(context);
-        tv.setText(LocaleController.getString(R.string.NodesNewLink));
-        tv.setTextSize(16);
-        tv.setTextColor(Theme.getColor(Theme.key_featuredStickers_addButton));
-        newLinkRow.addView(tv);
-        root.addView(newLinkRow, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
+            TextView tv = new TextView(context);
+            tv.setText(LocaleController.getString(R.string.NodesNewLink));
+            tv.setTextSize(16);
+            tv.setTextColor(Theme.getColor(Theme.key_featuredStickers_addButton));
+            newLinkRow.addView(tv);
+            root.addView(newLinkRow, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
+        }
 
         ListView lv = new ListView(context);
         lv.setDividerHeight(0);
