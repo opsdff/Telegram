@@ -362,7 +362,9 @@ public class NodeProfileActivity extends BaseFragment {
                 row.setOrientation(LinearLayout.HORIZONTAL);
                 row.setGravity(Gravity.CENTER_VERTICAL);
                 row.setPadding(AndroidUtilities.dp(16), AndroidUtilities.dp(10), AndroidUtilities.dp(16), AndroidUtilities.dp(10));
-                row.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
+                row.setBackground(Theme.getSelectorDrawable(false));
+                row.setClickable(true);
+                row.setDescendantFocusability(android.view.ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 
                 BackupImageView av = new BackupImageView(context);
                 av.setRoundRadius(AndroidUtilities.dp(22));
@@ -400,6 +402,8 @@ public class NodeProfileActivity extends BaseFragment {
             if (member == null) return convertView;
 
             LinearLayout row = (LinearLayout) convertView;
+            // Tap → member's NODE multiprofile (not their main Telegram profile)
+            row.setOnClickListener(v -> presentFragment(new NodeMemberProfileActivity(nodeId, member.user_id)));
             BackupImageView av = (BackupImageView) row.findViewWithTag("av");
             TextView name = (TextView) row.findViewWithTag("name");
             TextView status = (TextView) row.findViewWithTag("status");

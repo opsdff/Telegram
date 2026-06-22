@@ -124,7 +124,9 @@ public class NodeMembersActivity extends BaseFragment {
                 row.setOrientation(LinearLayout.HORIZONTAL);
                 row.setGravity(Gravity.CENTER_VERTICAL);
                 row.setPadding(AndroidUtilities.dp(16), AndroidUtilities.dp(10), AndroidUtilities.dp(16), AndroidUtilities.dp(10));
-                row.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
+                row.setBackground(Theme.getSelectorDrawable(false));
+                row.setClickable(true);
+                row.setDescendantFocusability(android.view.ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 
                 BackupImageView av = new BackupImageView(context);
                 av.setRoundRadius(AndroidUtilities.dp(22));
@@ -149,6 +151,8 @@ public class NodeMembersActivity extends BaseFragment {
             }
             TL_nodes.TL_nodeMember m = getItem(pos);
             LinearLayout row = (LinearLayout) cv;
+            // Tap → member's NODE multiprofile
+            row.setOnClickListener(v -> presentFragment(new NodeMemberProfileActivity(nodeId, m.user_id)));
             BackupImageView av = (BackupImageView) row.findViewWithTag("av");
             TextView name = (TextView) row.findViewWithTag("name");
             TextView sub = (TextView) row.findViewWithTag("sub");
