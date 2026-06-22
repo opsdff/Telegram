@@ -244,8 +244,23 @@ public class NodeChatListActivity extends BaseFragment implements NotificationCe
     }
 
     private void openNodeChat(TL_nodes.TL_nodeChat chat) {
-        // Node chats are real Telegram channels/supergroups served by the node server.
-        // ChatActivity expects a positive chat_id.
+        // Node chats are served by the node server but are NOT synced into MessagesController
+        // as regular TLRPC.Chat objects, so ChatActivity.onFragmentCreate() would return false
+        // (chat not found) and silently abort. Build a synthetic channel and cache it first.
+        org.telegram.messenger.MessagesController mc = org.telegram.messenger.MessagesController.getInstance(currentAccount);
+        TLRPC.Chat existing = mc.getChat(chat.id);
+        if (existing == null) {
+            TLRPC.TL_channel ch = new TLRPC.TL_channel();
+            ch.id = chat.id;
+            ch.title = chat.title;
+            ch.megagroup = chat.is_group;   // group → supergroup (members can post)
+            ch.broadcast = !chat.is_group;  // channel → broadcast
+            ch.left = false;                 // we are a member (node access already granted)
+            ch.access_hash = 0;
+            ch.date = chat.created_at;
+            mc.putChat(ch, false);
+        }
+
         Bundle args = new Bundle();
         args.putLong("chat_id", chat.id);
         org.telegram.ui.ChatActivity chatActivity = new org.telegram.ui.ChatActivity(args);
