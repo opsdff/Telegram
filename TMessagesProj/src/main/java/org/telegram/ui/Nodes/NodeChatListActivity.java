@@ -121,15 +121,16 @@ public class NodeChatListActivity extends BaseFragment implements NotificationCe
         });
         column.addView(chatListView, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 0, 1.0f));
 
-        // Empty view (weighted sibling, GONE by default — collapses when hidden)
-        emptyView = buildEmptyView(context);
-        column.addView(emptyView, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 0, 1.0f));
-
-        // Bottom tab bar — fixed 56dp
+        // Bottom tab bar — fixed 56dp. chatListView is the SOLE weighted child (mirrors NodesListActivity).
         LinearLayout tabBar = buildTabBar(context);
         column.addView(tabBar, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 56));
 
         root.addView(column, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
+
+        // Empty view — GONE by default, only shown when there are no chats; sits above the
+        // tab bar (bottom margin 56) so it never intercepts tab taps. GONE => no interception.
+        emptyView = buildEmptyView(context);
+        root.addView(emptyView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, Gravity.TOP, 0, 0, 0, 56));
 
         // FAB (create chat) — only for admins. Sits above the tab bar (72dp).
         fab = new ImageView(context);
