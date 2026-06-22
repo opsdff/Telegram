@@ -264,6 +264,7 @@ public class NodeChatListActivity extends BaseFragment implements NotificationCe
 
         Bundle args = new Bundle();
         args.putLong("chat_id", chat.id);
+        args.putLong("node_id", nodeId); // marks this as a node chat → sender taps open node multiprofile
         org.telegram.ui.ChatActivity chatActivity = new org.telegram.ui.ChatActivity(args);
         presentFragment(chatActivity);
     }

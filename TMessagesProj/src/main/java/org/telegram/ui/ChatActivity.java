@@ -824,6 +824,7 @@ public class ChatActivity extends BaseFragment implements
     private boolean scrollToTopUnReadOnResume;
     private long dialog_id;
     private Long dialog_id_Long;
+    private long nodeChatId; // != 0 when this chat belongs to a Node; sender taps open node multiprofile
     private int lastLoadIndex = 1;
     private SparseArray<MessageObject>[] selectedMessagesIds = new SparseArray[]{new SparseArray<>(), new SparseArray<>()};
     private SparseArray<MessageObject>[] selectedMessagesCanCopyIds = new SparseArray[]{new SparseArray<>(), new SparseArray<>()};
@@ -2580,6 +2581,7 @@ public class ChatActivity extends BaseFragment implements
         final long chatId = arguments.getLong("chat_id", 0);
         final long userId = arguments.getLong("user_id", 0);
         final int encId = arguments.getInt("enc_id", 0);
+        nodeChatId = arguments.getLong("node_id", 0);
         dialogFolderId = arguments.getInt("dialog_folder_id", 0);
         dialogFilterId = arguments.getInt("dialog_filter_id", 0);
         chatMode = arguments.getInt("chatMode", 0);
@@ -38925,6 +38927,11 @@ public class ChatActivity extends BaseFragment implements
         private void openProfile(TLRPC.User user, boolean expandPhoto) {
             if (user != null) {
                 if (user.id == UserObject.VERIFY) return;
+                // In a Node chat, tapping a sender opens their NODE multiprofile, not the real profile.
+                if (nodeChatId != 0) {
+                    presentFragment(new org.telegram.ui.Nodes.NodeMemberProfileActivity(nodeChatId, user.id));
+                    return;
+                }
                 if (user.photo == null || user.photo instanceof TLRPC.TL_userProfilePhotoEmpty) {
                     expandPhoto = false;
                 }
